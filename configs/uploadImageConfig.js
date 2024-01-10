@@ -1,6 +1,8 @@
 const sharp = require("sharp");
 const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
+const path = require("path");
+const fs = require("fs").promises;
 
 const storage = multer.memoryStorage();
 
@@ -22,21 +24,27 @@ const uploadImage = async (buffer, fileName) => {
   try {
     const processedImageBuffer = await sharp(buffer)
       .jpeg({ quality: 60 })
-      .resize({ width: 450, height: 450 })
       .toBuffer();
 
-    const processedFileName = `${uuidv4()}-processed.jpg`;
-    await sharp(processedImageBuffer).toFile(
-      `public/images/${processedFileName}`
-    );
+    // Generate a unique filename
+    const imageName = `${uuidv4()}-processed.jpg`;
+
+    // Define the target directory
+    const targetDirectory = path.join(__dirname, "..", "public/images");
+
+    // Ensure the target directory exists
+    await fs.mkdir(targetDirectory, { recursive: true });
+
+    // Save the processed image buffer to the file path
+    const imagePath = path.join(targetDirectory, imageName);
+    await fs.writeFile(imagePath, processedImageBuffer);
 
     return {
       message: "Image uploaded and processed successfully",
-      fileInfo: { fileName: processedFileName },
+      fileInfo: { fileName: imageName },
     };
   } catch (error) {
-    console.error("Sharp Error:", error.message);
-    return { message: "Internal server error" };
+    return error;
   }
 };
 

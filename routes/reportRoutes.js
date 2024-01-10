@@ -4,34 +4,37 @@ const reportController = require("../controllers/reportController");
 const authentication = require("../middlewares/authMiddleware");
 
 router.get(
-  "/api/getAllReports/:page&:count",
+  "/api/report/getAllReports/:page&:count",
   authentication,
   reportController.getAllReportsByPagination
 );
 
 router.get(
-  "/api/getAllReportsByUserId/:userId",
+  "/api/report/getAllReportsByUserId/:userId",
   authentication,
-
   reportController.getAllReportsByUserId
 );
 
 router.get(
-  "/api/getreportById/:Id",
+  "/api/report/getreportById/:Id",
   authentication,
   reportController.getReportById
 );
 
-router.post("/api/addReport/", authentication, reportController.addReport);
+router.post(
+  "/api/report/addReport/",
+  authentication,
+  reportController.addReport
+);
 
 router.put(
-  "/api/updateReport/:Id",
+  "/api/report/updateReport/:Id",
   authentication,
   reportController.updateReport
 );
 
 router.delete(
-  "/api/deleteReport/:Id",
+  "/api/report/deleteReport/:Id",
   authentication,
   reportController.deleteReport
 );

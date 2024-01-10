@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const secretKey = process.env.SECRET_KEY;
 
 const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization.split(" ")[1];
+  const token = req.headers.authorization;
 
   if (!token) {
     return res
@@ -11,7 +11,7 @@ const authenticateToken = (req, res, next) => {
       .json({ message: "Unauthorized - Token not provided" });
   }
 
-  jwt.verify(token, secretKey, (err, user) => {
+  jwt.verify(token.split(" ")[1], secretKey, (err, user) => {
     if (err) {
       return res.status(403).json({ message: "Forbidden - Invalid token" });
     }

@@ -5,12 +5,12 @@ const authentication = require("../middlewares/authMiddleware");
 
 // Get the latest app version route
 router.get(
-  "/api/getAppSettings",
+  "/api/settings/getAppSettings",
   authentication,
   appSettingsController.getLatestVersion
 );
 router.post(
-  "/api/updateAppSettings",
+  "/api/settings/updateAppSettings",
   authentication,
   appSettingsController.postLatestVersion
 );
