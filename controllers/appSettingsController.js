@@ -5,19 +5,24 @@ const getLatestVersion = async (req, res) => {
     const appSettings = await AppSettings.findOne();
 
     if (!appSettings) {
-      return res
-        .status(404)
-        .json({ data: null, message: "تنظیماتی پیدا نشد." });
+      await AppSettings.create({ version: "1.0.0" });
+      return res.status(200).json({
+        data: "1.0.0",
+        message: "نسخه پیشفرض با موفقیت ایجاد شد.",
+        status: true,
+      });
     }
 
-    return res
-      .status(200)
-      .json({ data: appSettings.version, message: "موفقیت آمیز" });
+    return res.status(200).json({
+      data: appSettings.version,
+      message: "دریافت نسخه با موفقیت انجام شد.",
+      status: true,
+    });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ data: null, message: `Error: ${error.message}` });
+      .json({ data: null, message: `Error: ${error.message}`, status: false });
   }
 };
 
@@ -35,6 +40,7 @@ const postLatestVersion = async (req, res) => {
       return res.status(200).json({
         data: existingAppSettings.version,
         message: "تنظیمات جدید با موفقیت ویرایش شد.",
+        status: false,
       });
     } else {
       // Create a new AppSettings if none exists
@@ -42,13 +48,14 @@ const postLatestVersion = async (req, res) => {
       return res.status(201).json({
         data: newAppSettings.version,
         message: "تنظیمات با موفقیت ساخته شد.",
+        status: true,
       });
     }
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ data: null, message: `Error: ${error.message}` });
+      .json({ data: null, message: `Error: ${error.message}`, status: false });
   }
 };
 

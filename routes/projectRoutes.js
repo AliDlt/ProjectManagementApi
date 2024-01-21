@@ -4,21 +4,13 @@ const projectController = require("../controllers/projectController");
 const authentication = require("../middlewares/authMiddleware");
 
 router.get(
-  "/api/project/getAllProjects/:page&:count",
+  "/api/project/getAllProjectsByUserId/",
   authentication,
-
-  projectController.getAllProjectsByPagination
-);
-
-router.get(
-  "/api/project/getAllProjectsByUserId/:userId",
-  authentication,
-
   projectController.getAllProjectsByUserId
 );
 
 router.get(
-  "/api/project/getProjectById/:Id",
+  "/api/project/getProjectById/",
   authentication,
   projectController.getProjectById
 );
@@ -30,13 +22,13 @@ router.post(
 );
 
 router.put(
-  "/api/project/updateProject/:Id",
+  "/api/project/updateProject/",
   authentication,
   projectController.updateProject
 );
 
 router.delete(
-  "/api/project/deleteProject/:Id",
+  "/api/project/deleteProject/",
   authentication,
   projectController.deleteProject
 );

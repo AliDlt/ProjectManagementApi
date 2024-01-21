@@ -25,13 +25,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // routes
-app.use(require("./routes/adminRoutes"));
+app.use(require("./routes/userRoutes"));
 app.use(require("./routes/appSettingsRoutes"));
+app.use(require("./routes/smsRoutes"));
 app.use(require("./routes/authRoutes"));
 app.use(require("./routes/imageRoutes"));
 app.use(require("./routes/projectRoutes"));
 app.use(require("./routes/reportRoutes"));
-app.use(require("./routes/userRoutes"));
 
 // Handle 404
 app.get("*", function (req, res) {

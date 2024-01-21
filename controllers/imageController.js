@@ -13,7 +13,9 @@ const uploadImage = async (req, res) => {
       res,
       async function (err) {
         if (err) {
-          return res.status(400).json({ message: err, data: null });
+          return res
+            .status(400)
+            .json({ message: err, data: null, status: false });
         }
 
         if (req.file) {
@@ -25,16 +27,19 @@ const uploadImage = async (req, res) => {
           return res.status(201).json({
             message: info.message,
             data: info.fileInfo,
+            status: true,
           });
         } else {
           return res
             .status(400)
-            .json({ message: "تصویری یافت نشد.", data: null });
+            .json({ message: "تصویری یافت نشد.", data: null, status: false });
         }
       }
     );
   } catch (error) {
-    return res.status(500).json({ message: error.message, data: null });
+    return res
+      .status(500)
+      .json({ message: error.message, data: null, status: false });
   }
 };
 
@@ -46,12 +51,16 @@ const getImage = async (req, res) => {
       const url = `${
         "http://" + process.env.URL + ":" + process.env.PORT
       }/images/${report.imageName}`;
-      return res.status(200).json({ message: "successful", data: url });
+      return res
+        .status(200)
+        .json({ message: "successful", data: url, status: true });
     } else {
-      return res.status(404).json({ message: "no image", data: null });
+      return res
+        .status(400)
+        .json({ message: "no image", data: null, status: false });
     }
   } catch (error) {
-    return res.status(500).json({ message: error, data: null });
+    return res.status(500).json({ message: error, data: null, status: false });
   }
 };
 
@@ -66,19 +75,23 @@ const deleteImage = async (req, res) => {
     // Attempt to delete the file
     await fs.unlink(imagePath);
 
-    return res
-      .status(200)
-      .json({ message: "Image deleted successfully", data: true });
+    return res.status(200).json({
+      message: "Image deleted successfully",
+      data: true,
+      status: true,
+    });
   } catch (error) {
     if (error.code === "ENOENT") {
       // File not found
-      return res.status(404).json({ message: "Image not found", data: false });
+      return res
+        .status(400)
+        .json({ message: "Image not found", data: null, status: false });
     } else {
       // Other error
       console.error("Error deleting image:", error);
       return res
         .status(500)
-        .json({ message: "Internal server error", data: false });
+        .json({ message: "Internal server error", data: false, status: false });
     }
   }
 };

@@ -4,19 +4,19 @@ const reportController = require("../controllers/reportController");
 const authentication = require("../middlewares/authMiddleware");
 
 router.get(
-  "/api/report/getAllReports/:page&:count",
+  "/api/report/getAllReports/",
   authentication,
   reportController.getAllReportsByPagination
 );
 
 router.get(
-  "/api/report/getAllReportsByUserId/:userId",
+  "/api/report/getAllReportsByUserId/",
   authentication,
   reportController.getAllReportsByUserId
 );
 
 router.get(
-  "/api/report/getreportById/:Id",
+  "/api/report/getreportById/",
   authentication,
   reportController.getReportById
 );
@@ -28,13 +28,13 @@ router.post(
 );
 
 router.put(
-  "/api/report/updateReport/:Id",
+  "/api/report/updateReport/",
   authentication,
   reportController.updateReport
 );
 
 router.delete(
-  "/api/report/deleteReport/:Id",
+  "/api/report/deleteReport/",
   authentication,
   reportController.deleteReport
 );

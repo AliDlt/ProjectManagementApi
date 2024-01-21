@@ -5,27 +5,23 @@ const userController = require("../controllers/userController");
 const authentication = require("../middlewares/authMiddleware");
 
 router.get(
-  "/api/user/getAllUsers/:page&:count",
+  "/api/user/getAllUsers",
   authentication,
   userController.getAllUsersByPagination
 );
 
 router.get(
-  "/api/user/getUserById/:Id",
+  "/api/user/getUserById/",
   authentication,
   userController.getUserById
 );
 
-router.post("/api/user/addUser/", authentication, userController.addUser);
+router.post("/api/user/addUser", authentication, userController.addUser);
 
-router.put(
-  "/api/user/updateUser/:Id",
-  authentication,
-  userController.updateUser
-);
+router.put("/api/user/updateUser/", authentication, userController.updateUser);
 
 router.delete(
-  "/api/user/deleteUser/:Id",
+  "/api/user/deleteUser",
   authentication,
   userController.deleteUser
 );

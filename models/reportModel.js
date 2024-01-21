@@ -6,6 +6,7 @@ const reportSchema = new mongoose.Schema({
   date: { type: Date },
   projectId: { type: mongoose.Types.ObjectId },
   imageName: { type: String },
+  createdBy: { type: mongoose.Types.ObjectId, ref: "User", required: true },
 });
 
 const Report = mongoose.model("Report", reportSchema);
