@@ -33,4 +33,15 @@ router.delete(
   projectController.deleteProject
 );
 
+router.get(
+  "/api/project/getUsers/:id/",
+  authentication,
+  projectController.GetUsersByProjectId
+);
+
+router.post(
+  "/api/project/updateUsers/:id/",
+  authentication,
+  projectController.UpdateUsersByProjectId
+);
 module.exports = router;

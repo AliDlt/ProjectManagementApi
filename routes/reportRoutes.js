@@ -4,15 +4,9 @@ const reportController = require("../controllers/reportController");
 const authentication = require("../middlewares/authMiddleware");
 
 router.get(
-  "/api/report/getAllReports/",
+  "/api/report/getAllReportsByProjectId/",
   authentication,
-  reportController.getAllReportsByPagination
-);
-
-router.get(
-  "/api/report/getAllReportsByUserId/",
-  authentication,
-  reportController.getAllReportsByUserId
+  reportController.getAllReportsByProjectId
 );
 
 router.get(

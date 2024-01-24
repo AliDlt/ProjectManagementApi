@@ -1,29 +1,44 @@
 const Report = require("../models/reportModel");
+const User = require("../models/userModel");
 
-const getAllReportsByPagination = async (req, res) => {
+const getAllReportsByProjectId = async (req, res) => {
   try {
-    const { page, count } = req.query;
+    const { page, count, projectId, userId } = req.query;
 
-    const reports = await Report.find()
-      .skip((page - 1) * count)
-      .limit(Number(count));
+    let reports;
 
-    return res
-      .status(200)
-      .json({ message: "موفقیت آمیز", data: reports, status: true });
-  } catch (error) {
-    console.error(error);
-    return res
-      .status(500)
-      .json({ message: `خطا : ${error.message}`, data: null, status: false });
-  }
-};
+    if (userId) {
+      // Check if the userRole is 0 (Admin)
+      const isAdmin = await User.exists({ _id: userId, userRole: 0 });
 
-const getAllReportsByUserId = async (req, res) => {
-  try {
-    const { userId } = req.query;
-
-    const reports = await Report.find({ userId });
+      if (isAdmin) {
+        // If userRole is 0 (Admin), get all reports
+        reports = await Report.find()
+          .skip((page - 1) * count)
+          .limit(Number(count));
+      } else {
+        // For other userRoles, filter reports based on projectId and user's projects
+        const user = await User.findById(userId);
+        const userProjects = user.projectIds || [];
+        console.log(user, userProjects);
+        if (projectId && userProjects.includes(projectId)) {
+          // If projectId is specified and it belongs to the user, get reports for that project
+          reports = await Report.find({ projectId })
+            .skip((page - 1) * count)
+            .limit(Number(count));
+        } else {
+          // If projectId is not specified or doesn't belong to the user, get reports for user's projects
+          reports = await Report.find({ projectId: { $in: userProjects } })
+            .skip((page - 1) * count)
+            .limit(Number(count));
+        }
+      }
+    } else {
+      // Handle the case when userId is not set
+      reports = await Report.find()
+        .skip((page - 1) * count)
+        .limit(Number(count));
+    }
 
     return res
       .status(200)
@@ -129,8 +144,7 @@ const deleteReport = async (req, res) => {
 };
 
 module.exports = {
-  getAllReportsByPagination,
-  getAllReportsByUserId,
+  getAllReportsByProjectId,
   getReportById,
   addReport,
   updateReport,

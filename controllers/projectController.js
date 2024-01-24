@@ -1,5 +1,6 @@
 const Project = require("../models/projectModel");
 const User = require("../models/userModel");
+
 const getAllProjectsByUserId = async (req, res) => {
   try {
     const { page, count, userId } = req.query;
@@ -57,7 +58,21 @@ const getProjectById = async (req, res) => {
 
 const addProject = async (req, res) => {
   try {
-    const project = await Project.create(req.body);
+    const { name, description, startDate, endDate, situation, userId } =
+      req.body;
+
+    // Create a new project with the provided data
+    const projectData = {
+      name,
+      description,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      situation,
+      usersIds: [userId], // Associate the user with the project
+    };
+
+    // Save the project to the database
+    const project = await Project.create(projectData);
 
     return res
       .status(201)
@@ -118,9 +133,77 @@ const deleteProject = async (req, res) => {
   }
 };
 
+const GetUsersByProjectId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await Project.findById(id);
+    if (!project) {
+      return res.status(400).json({
+        message: "پروژه ای یافت نشد.",
+        data: null,
+        status: false,
+      });
+    }
+
+    const usersDetail = await Promise.all(
+      project.usersIds.map(async (userId) => {
+        const user = await User.findById(userId);
+        return user ? user.toObject() : null;
+      })
+    );
+
+    return res.status(200).json({
+      message: "موفقیت آمیز",
+      data: usersDetail.filter((user) => user !== null),
+      status: true,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: `خطا : ${error.message}`,
+      data: null,
+      status: false,
+    });
+  }
+};
+
+const UpdateUsersByProjectId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { selectedUserIds } = req.body;
+
+    const project = await Project.findById(id);
+    if (!project) {
+      return res.status(400).json({
+        message: "پروژه ای یافت نشد.",
+        data: null,
+        status: false,
+      });
+    }
+
+    project.usersIds = selectedUserIds;
+    const updatedProject = await project.save();
+
+    return res.status(200).json({
+      message: "به روز رسانی با موفقیت انجام شد.",
+      data: updatedProject,
+      status: true,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: `خطا : ${error.message}`,
+      data: null,
+      status: false,
+    });
+  }
+};
+
 module.exports = {
   getAllProjectsByUserId,
   getProjectById,
+  GetUsersByProjectId,
+  UpdateUsersByProjectId,
   addProject,
   updateProject,
   deleteProject,
