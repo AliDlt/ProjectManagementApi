@@ -34,13 +34,13 @@ router.delete(
 );
 
 router.get(
-  "/api/project/getUsers/:id/",
+  "/api/project/getUsers/",
   authentication,
   projectController.GetUsersByProjectId
 );
 
 router.post(
-  "/api/project/updateUsers/:id/",
+  "/api/project/updateUsers/",
   authentication,
   projectController.UpdateUsersByProjectId
 );

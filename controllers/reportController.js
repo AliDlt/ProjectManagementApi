@@ -1,5 +1,6 @@
 const Report = require("../models/reportModel");
 const User = require("../models/userModel");
+const Project = require("../models/projectModel");
 
 const getAllReportsByProjectId = async (req, res) => {
   try {
@@ -78,9 +79,23 @@ const addReport = async (req, res) => {
   try {
     // Assuming req.user contains the user's ID
     const createdBy = req.user._id;
-
+    const { name, description, date, projectId, imageName } = req.body;
     // Add the createdBy field to the report data
-    const reportData = { ...req.body, createdBy };
+    const reportData = {
+      name,
+      description,
+      date,
+      imageName,
+      projectId,
+      createdBy,
+    };
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res
+        .status(400)
+        .json({ message: " پروژه ای یافت نشد.", data: null, status: false });
+    }
 
     const report = await Report.create(reportData);
 

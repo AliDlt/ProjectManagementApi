@@ -61,6 +61,13 @@ const addProject = async (req, res) => {
     const { name, description, startDate, endDate, situation, userId } =
       req.body;
 
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: " کاربری یافت نشد.", data: null, status: false });
+    }
+
     // Create a new project with the provided data
     const projectData = {
       name,
@@ -73,6 +80,8 @@ const addProject = async (req, res) => {
 
     // Save the project to the database
     const project = await Project.create(projectData);
+    user.projectIds = [...user.projectIds, project._id];
+    await user.save();
 
     return res
       .status(201)
@@ -99,6 +108,13 @@ const updateProject = async (req, res) => {
         .json({ message: "پروژه ای یافت نشد.", data: null, status: false });
     }
 
+    // Update the project ID in the associated user model
+    const user = await User.findOneAndUpdate(
+      { projectIds: id },
+      { $set: { "projectIds.$": updatedProject._id } },
+      { new: true }
+    );
+
     return res
       .status(200)
       .json({ message: "موفقیت آمیز", data: updatedProject, status: true });
@@ -122,6 +138,9 @@ const deleteProject = async (req, res) => {
         .json({ message: "پروژه ای یافت نشد.", data: null, status: false });
     }
 
+    // Delete the project ID from the associated user model
+    await User.updateMany({ projectIds: id }, { $pull: { projectIds: id } });
+
     return res
       .status(200)
       .json({ message: "موفقیت آمیز", data: deletedProject, status: true });
@@ -135,7 +154,7 @@ const deleteProject = async (req, res) => {
 
 const GetUsersByProjectId = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.query;
     const project = await Project.findById(id);
     if (!project) {
       return res.status(400).json({
@@ -169,7 +188,7 @@ const GetUsersByProjectId = async (req, res) => {
 
 const UpdateUsersByProjectId = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.query;
     const { selectedUserIds } = req.body;
 
     const project = await Project.findById(id);
