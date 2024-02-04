@@ -190,7 +190,6 @@ const UpdateUsersByProjectId = async (req, res) => {
   try {
     const { id } = req.query;
     const { selectedUserIds } = req.body;
-
     const project = await Project.findById(id);
     if (!project) {
       return res.status(400).json({
@@ -205,7 +204,7 @@ const UpdateUsersByProjectId = async (req, res) => {
 
     return res.status(200).json({
       message: "به روز رسانی با موفقیت انجام شد.",
-      data: updatedProject,
+      data: true,
       status: true,
     });
   } catch (error) {

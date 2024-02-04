@@ -21,7 +21,6 @@ const getAllReportsByProjectId = async (req, res) => {
         // For other userRoles, filter reports based on projectId and user's projects
         const user = await User.findById(userId);
         const userProjects = user.projectIds || [];
-        console.log(user, userProjects);
         if (projectId && userProjects.includes(projectId)) {
           // If projectId is specified and it belongs to the user, get reports for that project
           reports = await Report.find({ projectId })
@@ -77,9 +76,8 @@ const getReportById = async (req, res) => {
 
 const addReport = async (req, res) => {
   try {
-    // Assuming req.user contains the user's ID
-    const createdBy = req.user._id;
-    const { name, description, date, projectId, imageName } = req.body;
+    const { name, description, date, projectId, imageName, createdBy } =
+      req.body;
     // Add the createdBy field to the report data
     const reportData = {
       name,
@@ -96,12 +94,13 @@ const addReport = async (req, res) => {
         .status(400)
         .json({ message: " پروژه ای یافت نشد.", data: null, status: false });
     }
-
     const report = await Report.create(reportData);
+    project.reportsIds = [...project.reportsIds, report._id];
+    await project.save();
 
     return res
       .status(201)
-      .json({ message: "موفقیت آمیز", data: report, status: true });
+      .json({ message: "موفقیت آمیز", data: true, status: true });
   } catch (error) {
     console.error(error);
     return res

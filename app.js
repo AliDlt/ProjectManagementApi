@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const helmet = require("helmet");
+const path = require("path");
 const db = require("./configs/db");
 
 require("dotenv").config();
@@ -18,7 +19,7 @@ app.use(helmet());
 db.connectDB();
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 //* BodyParser
 app.use(bodyParser.urlencoded({ extended: false }));

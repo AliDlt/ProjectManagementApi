@@ -7,6 +7,8 @@ const path = require("path");
 
 const uploadImage = async (req, res) => {
   try {
+    //return image name
+
     // Process the uploaded file
     uploadImageConfig.uploadConfig.single("file")(
       req,
@@ -23,10 +25,10 @@ const uploadImage = async (req, res) => {
             req.file.buffer,
             req.file.filename
           );
-
+          console.log(info);
           return res.status(201).json({
-            message: info.message,
-            data: info.fileInfo,
+            message: "موفقیت آمیز",
+            data: info.fileInfo.fileName,
             status: true,
           });
         } else {
@@ -46,25 +48,29 @@ const uploadImage = async (req, res) => {
 const getImage = async (req, res) => {
   try {
     const imageName = req.params.imageName;
-    const report = await Report.findOne({ imageName });
-    if (report) {
-      const url = `${
-        "http://" + process.env.URL + ":" + process.env.PORT
-      }/images/${report.imageName}`;
-      return res
-        .status(200)
-        .json({ message: "successful", data: url, status: true });
-    } else {
-      return res
-        .status(400)
-        .json({ message: "no image", data: null, status: false });
-    }
+    const filePath = path.join(__dirname, "../", "public/images", imageName);
+
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        // Handle file not found or other errors
+        res.status(404).json({
+          message: "image not found",
+          data: null,
+          status: false,
+        });
+      }
+    });
   } catch (error) {
-    return res.status(500).json({ message: error, data: null, status: false });
+    res.status(500).json({
+      message: error.message,
+      data: null,
+      status: false,
+    });
   }
 };
 
 const deleteImage = async (req, res) => {
+  //return bool
   try {
     const imageName = req.params.imageName;
     const imagePath = path.join(__dirname, "..", "public/images", imageName);
@@ -77,7 +83,7 @@ const deleteImage = async (req, res) => {
 
     return res.status(200).json({
       message: "Image deleted successfully",
-      data: true,
+      data: null,
       status: true,
     });
   } catch (error) {
@@ -91,7 +97,7 @@ const deleteImage = async (req, res) => {
       console.error("Error deleting image:", error);
       return res
         .status(500)
-        .json({ message: "Internal server error", data: false, status: false });
+        .json({ message: "Internal server error", data: null, status: false });
     }
   }
 };
