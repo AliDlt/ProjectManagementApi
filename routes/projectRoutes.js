@@ -10,6 +10,12 @@ router.get(
 );
 
 router.get(
+  "/api/project/getProjectTotalPages/",
+  authentication,
+  projectController.getProjectTotalPages
+);
+
+router.get(
   "/api/project/getProjectById/",
   authentication,
   projectController.getProjectById

@@ -15,6 +15,12 @@ router.get(
   reportController.getReportById
 );
 
+router.get(
+  "/api/report/getReportTotalPages/",
+  authentication,
+  reportController.getReportTotalPages
+);
+
 router.post(
   "/api/report/addReport/",
   authentication,

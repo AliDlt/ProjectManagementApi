@@ -9,22 +9,63 @@ const getAllProjectsByUserId = async (req, res) => {
     const isAdmin = await User.exists({ _id: userId, userRole: 0 });
 
     let projects;
+    let totalProjects;
 
     if (isAdmin) {
       // If userRole is 0 (Admin), get all projects
       projects = await Project.find()
         .skip((page - 1) * count)
         .limit(Number(count));
+
+      totalProjects = await Project.countDocuments();
     } else {
       // For other userRoles, filter projects by userId
       projects = await Project.find({ usersIds: userId })
         .skip((page - 1) * count)
         .limit(Number(count));
+
+      totalProjects = await Project.countDocuments({
+        usersIds: userId,
+      });
+    }
+
+    const totalPages = Math.ceil(totalProjects / count);
+
+    // Check if the requested page number is valid
+    if (page > totalPages) {
+      return res.status(404).json({
+        message: "این صفحه وجود ندارد.",
+        data: null,
+        status: false,
+      });
     }
 
     return res
       .status(200)
       .json({ message: "موفقیت آمیز", data: projects, status: true });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: `خطا : ${error.message}`, data: null, status: false });
+  }
+};
+
+const getProjectTotalPages = async (req, res) => {
+  try {
+    const totalProjects = await Project.countDocuments();
+
+    if (totalProjects == 0) {
+      return res
+        .status(400)
+        .json({ message: "پروژه ای یافت نشد.", data: null, status: false });
+    }
+
+    const pages = Math.ceil(totalProjects / 10);
+
+    return res
+      .status(200)
+      .json({ message: "موفقیت آمیز", data: pages, status: true });
   } catch (error) {
     console.error(error);
     return res
@@ -221,6 +262,7 @@ module.exports = {
   getAllProjectsByUserId,
   getProjectById,
   GetUsersByProjectId,
+  getProjectTotalPages,
   UpdateUsersByProjectId,
   addProject,
   updateProject,

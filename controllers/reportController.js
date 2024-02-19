@@ -51,6 +51,29 @@ const getAllReportsByProjectId = async (req, res) => {
   }
 };
 
+const getReportTotalPages = async (req, res) => {
+  try {
+    const totalReports = await Project.countDocuments();
+
+    if (totalReports == 0) {
+      return res
+        .status(400)
+        .json({ message: "گزارشی ای یافت نشد.", data: null, status: false });
+    }
+
+    const pages = Math.ceil(totalReports / 10);
+
+    return res
+      .status(200)
+      .json({ message: "موفقیت آمیز", data: pages, status: true });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: `خطا : ${error.message}`, data: null, status: false });
+  }
+};
+
 const getReportById = async (req, res) => {
   try {
     const { id } = req.query;
@@ -159,6 +182,7 @@ const deleteReport = async (req, res) => {
 
 module.exports = {
   getAllReportsByProjectId,
+  getReportTotalPages,
   getReportById,
   addReport,
   updateReport,

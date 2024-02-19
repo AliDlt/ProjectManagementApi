@@ -11,11 +11,7 @@ router.post(
 );
 
 // Download file route
-router.get(
-  "/api/image/download-image/:imageName",
-  authentication,
-  imageController.getImage
-);
+router.get("/api/image/download-image/:imageName", imageController.getImage);
 
 // Delete file route
 router.delete(
