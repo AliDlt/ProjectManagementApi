@@ -8,7 +8,11 @@ router.get(
   authentication,
   projectController.getAllProjectsByUserId
 );
-
+router.get(
+  "/api/project/getAllProjectsSearchByUserId/",
+  authentication,
+  projectController.getAllProjectsSearchByUserId
+);
 router.get(
   "/api/project/getProjectTotalPages/",
   authentication,

@@ -8,7 +8,11 @@ router.get(
   authentication,
   reportController.getAllReportsByProjectId
 );
-
+router.get(
+  "/api/report/getAllReportsSearchByUserId/",
+  authentication,
+  reportController.getAllReportsSearchByUserId
+);
 router.get(
   "/api/report/getreportById/",
   authentication,

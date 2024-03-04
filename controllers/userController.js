@@ -2,7 +2,7 @@ const User = require("../models/userModel");
 
 const getAllUsersByPagination = async (req, res) => {
   try {
-    const { page, count, userRole } = req.query;
+    const { page = 1, count = 10, userRole } = req.query;
 
     // Define the query object with pagination
     const query = {};
@@ -86,7 +86,7 @@ const updateUser = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "موفقیت آمیز", data: updatedUser, status: true });
+      .json({ message: "موفقیت آمیز", data: true, status: true });
   } catch (error) {
     console.error(error);
     return res

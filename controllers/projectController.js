@@ -3,7 +3,7 @@ const User = require("../models/userModel");
 
 const getAllProjectsByUserId = async (req, res) => {
   try {
-    const { page, count, userId } = req.query;
+    const { page = 1, count = 10, userId } = req.query;
 
     // Check if the userRole is 0 (Admin)
     const isAdmin = await User.exists({ _id: userId, userRole: 0 });
@@ -39,7 +39,99 @@ const getAllProjectsByUserId = async (req, res) => {
         status: false,
       });
     }
+    return res
+      .status(200)
+      .json({ message: "موفقیت آمیز", data: projects, status: true });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: `خطا : ${error.message}`, data: null, status: false });
+  }
+};
 
+const getAllProjectsSearchByUserId = async (req, res) => {
+  try {
+    const { page = 1, count = 10, userId, search } = req.query;
+
+    // Check if the userRole is 0 (Admin)
+    const isAdmin = await User.exists({ _id: userId, userRole: 0 });
+
+    let projects;
+    let totalProjects;
+
+    if (isAdmin) {
+      // If userRole is 0 (Admin), get all projects
+      if (search) {
+        projects = await Project.find({
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+          ],
+        })
+          .skip((page - 1) * count)
+          .limit(Number(count));
+
+        totalProjects = await Project.countDocuments({
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+          ],
+        });
+      } else {
+        projects = await Project.find({})
+          .skip((page - 1) * count)
+          .limit(Number(count));
+
+        totalProjects = await Project.countDocuments();
+      }
+    } else {
+      // For other userRoles, filter projects by userId
+      if (search) {
+        projects = await Project.find({
+          $and: [
+            { usersIds: userId },
+            {
+              $or: [
+                { name: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } },
+              ],
+            },
+          ],
+        })
+          .skip((page - 1) * count)
+          .limit(Number(count));
+
+        totalProjects = await Project.countDocuments({
+          $and: [
+            { usersIds: userId },
+            {
+              $or: [
+                { name: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } },
+              ],
+            },
+          ],
+        });
+      } else {
+        projects = await Project.find({ usersIds: userId })
+          .skip((page - 1) * count)
+          .limit(Number(count));
+
+        totalProjects = await Project.countDocuments({ usersIds: userId });
+      }
+    }
+
+    const totalPages = Math.ceil(totalProjects / count);
+
+    // Check if the requested page number is valid
+    if (page > totalPages) {
+      return res.status(404).json({
+        message: "این صفحه وجود ندارد.",
+        data: null,
+        status: false,
+      });
+    }
     return res
       .status(200)
       .json({ message: "موفقیت آمیز", data: projects, status: true });
@@ -53,19 +145,25 @@ const getAllProjectsByUserId = async (req, res) => {
 
 const getProjectTotalPages = async (req, res) => {
   try {
-    const totalProjects = await Project.countDocuments();
+    const { userId } = req.query;
 
-    if (totalProjects == 0) {
-      return res
-        .status(400)
-        .json({ message: "پروژه ای یافت نشد.", data: null, status: false });
+    // Check if the userRole is 0 (Admin)
+    const isAdmin = await User.exists({ _id: userId, userRole: 0 });
+
+    let totalProjects;
+
+    if (isAdmin) {
+      // If userRole is 0 (Admin), get all projects
+      totalProjects = await Project.countDocuments();
+    } else {
+      totalProjects = await Project.countDocuments({
+        usersIds: userId,
+      });
     }
-
-    const pages = Math.ceil(totalProjects / 10);
 
     return res
       .status(200)
-      .json({ message: "موفقیت آمیز", data: pages, status: true });
+      .json({ message: "موفقیت آمیز", data: totalProjects, status: true });
   } catch (error) {
     console.error(error);
     return res
@@ -121,8 +219,18 @@ const addProject = async (req, res) => {
 
     // Save the project to the database
     const project = await Project.create(projectData);
+
     user.projectIds = [...user.projectIds, project._id];
     await user.save();
+
+    // Loop through all users and add the projectId to the projectIds array of admin users
+    const users = await User.find();
+    for (const user of users) {
+      if (user.userRole === "Admin") {
+        user.projectIds.push(project._id);
+        await user.save();
+      }
+    }
 
     return res
       .status(201)
@@ -146,7 +254,7 @@ const updateProject = async (req, res) => {
     if (!updatedProject) {
       return res
         .status(400)
-        .json({ message: "پروژه ای یافت نشد.", data: null, status: false });
+        .json({ message: "پروژه ای یافت نشد.", data: false, status: false });
     }
 
     // Update the project ID in the associated user model
@@ -158,12 +266,12 @@ const updateProject = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "موفقیت آمیز", data: updatedProject, status: true });
+      .json({ message: "موفقیت آمیز", data: true, status: true });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ message: `خطا : ${error.message}`, data: null, status: false });
+      .json({ message: `خطا : ${error.message}`, data: false, status: false });
   }
 };
 
@@ -267,4 +375,5 @@ module.exports = {
   addProject,
   updateProject,
   deleteProject,
+  getAllProjectsSearchByUserId,
 };
