@@ -4,22 +4,9 @@ const getAllUsersByPagination = async (req, res) => {
   try {
     const { page = 1, count = 10, userRole } = req.query;
 
-    // Define the query object with pagination
-    const query = {};
-    const options = {
-      skip: (page - 1) * count,
-      limit: Number(count),
-    };
-
-    // If userRole is provided and is equal to 0, filter for userRole 0
-    if (userRole !== undefined && userRole === "0") {
-      query.userRole = 0;
-    } else {
-      // If userRole is not provided or not equal to 0, filter for userRole 1 and 2
-      query.userRole = { $in: [1, 2] };
-    }
-
-    const users = await User.find(query, null, options);
+    const users = await User.find({ userRole })
+      .skip((page - 1) * count)
+      .limit(Number(count));
 
     return res
       .status(200)
