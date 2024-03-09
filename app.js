@@ -10,6 +10,9 @@ require("dotenv").config();
 
 const port = process.env.PORT;
 
+// Use Morgan middleware for logging requests
+app.use(morgan("combined"));
+
 // Enable CORS for all routes
 app.use(cors());
 
@@ -33,6 +36,10 @@ app.use(require("./routes/authRoutes"));
 app.use(require("./routes/imageRoutes"));
 app.use(require("./routes/projectRoutes"));
 app.use(require("./routes/reportRoutes"));
+
+app.get("/", function (req, res) {
+  res.status(200).json("api is working ...");
+});
 
 // Handle 404
 app.get("*", function (req, res) {
