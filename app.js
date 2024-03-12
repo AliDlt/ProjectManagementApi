@@ -12,7 +12,7 @@ require("dotenv").config();
 const port = process.env.PORT;
 
 // Use Morgan middleware for logging requests
-app.use(morgan("combined"));
+app.use(morgan("tiny"));
 
 // Enable CORS for all routes
 app.use(cors());

@@ -50,10 +50,38 @@ const addUser = async (req, res) => {
       .status(201)
       .json({ message: "موفقیت آمیز", data: user, status: true });
   } catch (error) {
-    console.error(error);
-    return res
-      .status(500)
-      .json({ message: `خطا : ${error.message}`, data: null, status: false });
+    if (error.code === 11000) {
+      // Check which field caused the duplicate key error
+      const duplicatedField = Object.keys(error.keyPattern)[0];
+
+      switch (duplicatedField) {
+        case "phonenumber":
+          return res.status(400).json({
+            message: `شماره تلفن '${req.body.phonenumber}' قبلا استفاده شده است.`,
+            data: null,
+            status: false,
+          });
+        case "username":
+          return res.status(400).json({
+            message: `نام کاربری '${req.body.username}' قبلا استفاده شده است.`,
+            data: null,
+            status: false,
+          });
+        default:
+          return res.status(500).json({
+            message: `خطا : ${error.message}`,
+            data: null,
+            status: false,
+          });
+      }
+    }
+
+    // Handle other types of errors
+    return res.status(500).json({
+      message: `خطا : ${error.message}`,
+      data: null,
+      status: false,
+    });
   }
 };
 
